@@ -1,20 +1,15 @@
 import path from "path";
 import fs from "fs/promises";
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-
-const FILE_TYPE = {
-  FILE: "file",
-  DIRECTORY: "directory",
-};
+const FILE_TYPE = { FILE: "file", DIRECTORY: "directory" };
+const READ_FILE_CONFIG = { encoding: "base64" };
+const SNAPSHOT_FILE_NAME = "snapshot.json";
+const WORKSPACE_PATH = "workspace";
 
 const projectRoot = process.cwd();
 
 const snapshot = async () => {
-  const workspacePath = path.join(projectRoot, "workspace");
+  const workspacePath = path.join(projectRoot, WORKSPACE_PATH);
 
   try {
     await fs.access(workspacePath);
@@ -43,7 +38,7 @@ const snapshot = async () => {
         path: relative,
         type: FILE_TYPE.FILE,
         size: stats.size,
-        content: await fs.readFile(fullPath, 'base64')
+        content: await fs.readFile(fullPath, READ_FILE_CONFIG)
       };
 
       if (chunk.type === FILE_TYPE.DIRECTORY) {
@@ -53,10 +48,10 @@ const snapshot = async () => {
       snapshotObject.entries.push(chunk);
     }
   }
-  console.log(workspacePath);
+
   await scanDirectory(workspacePath);
 
-  await fs.writeFile('snapshot.json', JSON.stringify(snapshotObject, null, 2));
+  await fs.writeFile(SNAPSHOT_FILE_NAME, JSON.stringify(snapshotObject, null, 2));
 };
 
 await snapshot();
