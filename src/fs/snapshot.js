@@ -20,10 +20,10 @@ const snapshot = async () => {
 
   const snapshotObject = {
     rootPath: workspacePath,
-    entries: []
+    entries: [],
   };
 
-  const scanDirectory = async (currentPath, relativePath = '') => {
+  const scanDirectory = async (currentPath, relativePath = "") => {
     const items = await fs.readdir(currentPath);
 
     for (const item of items) {
@@ -31,15 +31,17 @@ const snapshot = async () => {
       const relative = path.join(relativePath, item);
       const stats = await fs.stat(fullPath);
 
-      const chunk = stats.isDirectory() ? {
-        path: relative,
-        type: FILE_TYPE.DIRECTORY
-      } : {
-        path: relative,
-        type: FILE_TYPE.FILE,
-        size: stats.size,
-        content: await fs.readFile(fullPath, READ_FILE_CONFIG)
-      };
+      const chunk = stats.isDirectory()
+        ? {
+            path: relative,
+            type: FILE_TYPE.DIRECTORY,
+          }
+        : {
+            path: relative,
+            type: FILE_TYPE.FILE,
+            size: stats.size,
+            content: await fs.readFile(fullPath, READ_FILE_CONFIG),
+          };
 
       if (chunk.type === FILE_TYPE.DIRECTORY) {
         await scanDirectory(fullPath, relative);
@@ -47,11 +49,14 @@ const snapshot = async () => {
 
       snapshotObject.entries.push(chunk);
     }
-  }
+  };
 
   await scanDirectory(workspacePath);
 
-  await fs.writeFile(SNAPSHOT_FILE_NAME, JSON.stringify(snapshotObject, null, 2));
+  await fs.writeFile(
+    SNAPSHOT_FILE_NAME,
+    JSON.stringify(snapshotObject, null, 2),
+  );
 };
 
 await snapshot();

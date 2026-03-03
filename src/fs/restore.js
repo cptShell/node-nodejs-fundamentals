@@ -14,7 +14,7 @@ const restore = async () => {
   try {
     await fs.access(snapshotPath);
   } catch {
-    console.error('Snapshot не найден по пути:', snapshotPath);
+    console.error("Snapshot не найден по пути:", snapshotPath);
     return;
   }
 
@@ -24,8 +24,9 @@ const restore = async () => {
 
   await fs.mkdir(restoredRoot, { recursive: true });
 
-  snapshot.entries.forEach(async (entry) => {
+  for (const entry of snapshot.entries ?? []) {
     const targetPath = path.join(restoredRoot, entry.path);
+
     if (entry.type === "directory") {
       await fs.mkdir(targetPath, { recursive: true });
     } else if (entry.type === "file") {
@@ -35,7 +36,7 @@ const restore = async () => {
       const buffer = Buffer.from(entry.content, ENCODING_TYPE.BASE64);
       await fs.writeFile(targetPath, buffer);
     }
-  });
+  }
 };
 
 await restore();
