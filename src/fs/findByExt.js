@@ -13,11 +13,10 @@ const getExtension = (args) => {
 
   if (extIndex !== -1 && args[extIndex + 1]) {
     let rawExt = args[extIndex + 1];
-    if (!rawExt.startsWith(".")) {
-      rawExt = `.${rawExt}`;
-    }
-    return rawExt;
+
+    return !rawExt.startsWith(".") ? `.${rawExt}` : rawExt;
   }
+
   return null;
 };
 
