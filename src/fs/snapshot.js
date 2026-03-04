@@ -5,6 +5,7 @@ const FILE_TYPE = { FILE: "file", DIRECTORY: "directory" };
 const READ_FILE_CONFIG = { encoding: "base64" };
 const SNAPSHOT_FILE_NAME = "snapshot.json";
 const WORKSPACE_PATH = "workspace";
+const SPACE_COUNT = 2;
 
 const projectRoot = process.cwd();
 
@@ -55,7 +56,7 @@ const snapshot = async () => {
 
   await fs.writeFile(
     SNAPSHOT_FILE_NAME,
-    JSON.stringify(snapshotObject, null, 2),
+    JSON.stringify(snapshotObject, null, SPACE_COUNT),
   );
 };
 
