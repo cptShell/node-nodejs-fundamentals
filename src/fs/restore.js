@@ -7,6 +7,8 @@ const ENCODING_TYPE = { BASE64: "base64", UTF8: "utf-8" };
 const FILE_TYPE = { FILE: "file", DIRECTORY: "directory" };
 const READ_FILE_CONFIG = { encoding: ENCODING_TYPE.UTF8 };
 const CREATE_DIR_CONFIG = { recursive: true };
+const FS_OPERATION_FAILED = "FS operation failed";
+const ERR_CODE_ENOENT = "ENOENT";
 
 const projectRoot = process.cwd();
 
@@ -16,13 +18,20 @@ const restore = async () => {
   try {
     await fs.access(snapshotPath);
   } catch {
-    console.error("Snapshot не найден по пути:", snapshotPath);
-    return;
+    throw new Error(FS_OPERATION_FAILED);
   }
 
   const snapshotData = await fs.readFile(snapshotPath, READ_FILE_CONFIG);
   const snapshot = JSON.parse(snapshotData);
   const restoredRoot = path.join(projectRoot, RESTORED_DIR_NAME);
+
+  try {
+    await fs.access(restoredRoot);
+    throw new Error(FS_OPERATION_FAILED);
+  } catch (err) {
+    if (err.message === FS_OPERATION_FAILED) throw err;
+    if (err.code !== ERR_CODE_ENOENT) throw err;
+  }
 
   await fs.mkdir(restoredRoot, CREATE_DIR_CONFIG);
 

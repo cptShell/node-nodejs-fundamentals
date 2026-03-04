@@ -3,6 +3,8 @@ import fs from "fs/promises";
 
 const EXTENSION_ARG = "--ext";
 const WORKSPACE_PATH = "workspace";
+const DEFAULT_EXT = ".txt";
+const FS_OPERATION_FAILED = "FS operation failed";
 const READ_FILE_CONFIG = { withFileTypes: true };
 
 const rootPath = process.cwd();
@@ -21,15 +23,14 @@ const getExtension = (args) => {
 };
 
 const findByExt = async () => {
-  const ext = getExtension(process.argv);
+  const ext = getExtension(process.argv) ?? DEFAULT_EXT;
 
   const workspacePath = path.join(rootPath, WORKSPACE_PATH);
 
   try {
     await fs.access(workspacePath);
   } catch {
-    console.error("Папка workspace не найдена по пути:", workspacePath);
-    return;
+    throw new Error(FS_OPERATION_FAILED);
   }
 
   const collectFilesByExt = async (
@@ -58,7 +59,9 @@ const findByExt = async () => {
 
   await collectFilesByExt(workspacePath, "", filesByExt);
 
-  console.log(filesByExt);
+  filesByExt.sort();
+
+  filesByExt.forEach((file) => console.log(file));
 }
 
 await findByExt();

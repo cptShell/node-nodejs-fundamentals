@@ -6,6 +6,7 @@ const READ_FILE_CONFIG = { encoding: "base64" };
 const SNAPSHOT_FILE_NAME = "snapshot.json";
 const WORKSPACE_PATH = "workspace";
 const SPACE_COUNT = 2;
+const FS_OPERATION_FAILED = "FS operation failed";
 
 const projectRoot = process.cwd();
 
@@ -14,9 +15,8 @@ const snapshot = async () => {
 
   try {
     await fs.access(workspacePath);
-  } catch (err) {
-    console.error("Папка workspace не найдена по пути:", workspacePath);
-    return;
+  } catch {
+    throw new Error(FS_OPERATION_FAILED);
   }
 
   const snapshotObject = {
