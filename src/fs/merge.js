@@ -42,7 +42,7 @@ const merge = async () => {
     const txtFiles = allFiles.filter((name) =>
       name.toLowerCase().endsWith(EXTENSION_TYPE.TXT),
     );
-    filesToMerge = sortFiles(txtNames);
+    filesToMerge = sortFiles(txtFiles);
   }
 
   const mergedContent = await Promise.all(filesToMerge.map(partsMapper));
