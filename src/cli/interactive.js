@@ -7,7 +7,9 @@ const COMMANDS = {
   EXIT: "exit",
 };
 
-const stertTimestamp = new Date().getMilliseconds();
+const msToUptime = (ms) => {
+  return (ms / 1000).toFixed(2) + "s";
+};
 
 const interactive = () => {
   const rl = readline.createInterface({
@@ -15,24 +17,40 @@ const interactive = () => {
     output: process.stdout,
   });
 
-  rl.question(">", (answer) => {
-    if (answer === COMMANDS.UPTIME) {
-      console.log(`Uptime: ${new Date().getMilliseconds() - stertTimestamp}ms`);
-    } else if (answer === COMMANDS.CWD) {
-      console.log(`CWD: ${process.cwd()}`);
-    } else if (answer === COMMANDS.DATE) {
-      console.log(`Date: ${new Date().toISOString()}`);
-    } else if (answer === COMMANDS.EXIT) {
-      rl.close();
-    } else {
-      console.log("Unknown command");
-    }
-  });
+  const startTimestamp = Date.now();
 
-  rl.on("close", () => {
-    console.log("Goodbye!");
-    process.exit(0);
-  });
+  const ask = () => {
+    rl.question(">", (answer) => {
+      if (answer === COMMANDS.EXIT) {
+        rl.close();
+        return;
+      }
+
+      switch (answer) {
+        case COMMANDS.UPTIME:
+          const uptime = Date.now() - startTimestamp;
+          console.log(`Uptime: ${msToUptime(uptime)}`);
+          break;
+        case COMMANDS.CWD:
+          console.log(`CWD: ${process.cwd()}`);
+          break;
+        case COMMANDS.DATE:
+          console.log(`Date: ${new Date().toISOString()}`);
+          break;
+        default:
+          console.log("Unknown command");
+      }
+
+      ask();
+    });
+
+    rl.on("close", () => {
+      console.log("Goodbye!");
+      process.exit(0);
+    });
+  };
+
+  ask();
 };
 
 interactive();
