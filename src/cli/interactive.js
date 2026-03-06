@@ -1,5 +1,9 @@
 import readline from "readline";
 
+const EXIT_CODE = 0;
+const GOODBYE_MESSAGE = "Goodbye!";
+const PROMPT = "> ";
+
 const COMMANDS = {
   UPTIME: "uptime",
   CWD: "cwd",
@@ -20,7 +24,7 @@ const interactive = () => {
   const startTimestamp = Date.now();
 
   const ask = () => {
-    rl.question(">", (answer) => {
+    rl.question(PROMPT, (answer) => {
       if (answer === COMMANDS.EXIT) {
         rl.close();
         return;
@@ -45,8 +49,8 @@ const interactive = () => {
     });
 
     rl.on("close", () => {
-      console.log("Goodbye!");
-      process.exit(0);
+      console.log(GOODBYE_MESSAGE);
+      process.exit(EXIT_CODE);
     });
   };
 
