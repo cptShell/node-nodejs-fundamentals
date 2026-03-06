@@ -1,5 +1,7 @@
 import readline from "readline";
 
+const CLOSE_EVENT = "close";
+const SIGINT_EVENT = "SIGINT";
 const EXIT_CODE = 0;
 const GOODBYE_MESSAGE = "Goodbye!";
 const PROMPT = "> ";
@@ -11,29 +13,24 @@ const COMMANDS = {
   EXIT: "exit",
 };
 
-const msToUptime = (ms) => {
-  return (ms / 1000).toFixed(2) + "s";
-};
-
 const interactive = () => {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
-  const startTimestamp = Date.now();
-
   const ask = () => {
     rl.question(PROMPT, (answer) => {
-      if (answer === COMMANDS.EXIT) {
+      const cmd = answer.trim();
+
+      if (cmd === COMMANDS.EXIT) {
         rl.close();
         return;
       }
 
-      switch (answer) {
+      switch (cmd) {
         case COMMANDS.UPTIME:
-          const uptime = Date.now() - startTimestamp;
-          console.log(`Uptime: ${msToUptime(uptime)}`);
+          console.log(`Uptime: ${process.uptime().toFixed(2)}s`);
           break;
         case COMMANDS.CWD:
           console.log(`CWD: ${process.cwd()}`);
@@ -48,13 +45,19 @@ const interactive = () => {
       ask();
     });
 
-    rl.on("close", () => {
-      console.log(GOODBYE_MESSAGE);
-      process.exit(EXIT_CODE);
-    });
   };
 
   ask();
+
+  rl.on(CLOSE_EVENT, () => {
+    console.log(GOODBYE_MESSAGE);
+    process.exit(EXIT_CODE);
+  });
+
+  process.on(SIGINT_EVENT, () => {
+    console.log(GOODBYE_MESSAGE);
+    process.exit(EXIT_CODE);
+  });
 };
 
 interactive();
