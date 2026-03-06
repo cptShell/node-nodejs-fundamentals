@@ -48,14 +48,11 @@ const progress = () => {
     const filledRaw = "█".repeat(filledLength);
     const emptyRaw = " ".repeat(length - filledLength);
 
-    const filledColor = colorPrefix && filledRaw.length > 0
+    const filled = colorPrefix && filledRaw.length > 0
       ? `${colorPrefix}${filledRaw}${COLOR_RESET}`
       : filledRaw;
-    const emptyColor = colorPrefix && emptyRaw.length > 0
-      ? `${colorPrefix}${emptyRaw}${COLOR_RESET}`
-      : emptyRaw;
 
-    const bar = `[${filledColor}${emptyColor}] ${percent}%`;
+    const bar = `[${filled}${emptyRaw}] ${percent}%`;
 
     process.stdout.write(`\r${bar}`);
 
