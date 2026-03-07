@@ -14,7 +14,7 @@ const READ_FILE_CONFIG = { withFileTypes: true };
 
 const projectRoot = process.cwd();
 
-async function collectFiles(dirPath, relativeDir = "") {
+const collectFiles = async (dirPath, relativeDir = "") => {
   const entries = await fs.promises.readdir(dirPath, READ_FILE_CONFIG);
   const files = [];
 
@@ -34,6 +34,17 @@ async function collectFiles(dirPath, relativeDir = "") {
   return files.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
 }
 
+const createSourceGenerator = (fileList, headerLength, headerBuffer) => {
+  return async function* () {
+    yield headerLength;
+    yield headerBuffer;
+    for (const file of fileList) {
+      const stream = fs.createReadStream(file.fullPath);
+      for await (const chunk of stream) yield chunk;
+    }
+  }
+}
+
 const compressDir = async () => {
   const workspacePath = path.join(projectRoot, WORKSPACE_PATH);
   const toCompressPath = path.join(workspacePath, TO_COMPRESS_DIR_NAME);
@@ -49,20 +60,14 @@ const compressDir = async () => {
   await fs.promises.mkdir(compressedPath, { recursive: true });
 
   const fileList = await collectFiles(toCompressPath);
+
   const headerData = fileList.map((f) => ({ path: f.relativePath, size: f.size }));
   const header = JSON.stringify(headerData);
   const headerBuffer = Buffer.from(header, ENCODING_TYPE.UTF8);
   const headerLength = Buffer.allocUnsafe(4);
   headerLength.writeUInt32BE(headerBuffer.length, 0);
 
-  async function* source() {
-    yield headerLength;
-    yield headerBuffer;
-    for (const file of fileList) {
-      const stream = fs.createReadStream(file.fullPath);
-      for await (const chunk of stream) yield chunk;
-    }
-  }
+  const source = createSourceGenerator(fileList, headerLength, headerBuffer);
 
   const readable = Readable.from(source());
   const compress = zlib.createBrotliCompress();
